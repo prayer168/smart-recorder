@@ -18,8 +18,6 @@
             --border: #e2e8f0;
             --danger: #ef4444;
             --danger-hover: #dc2626;
-            --success: #10b981;
-            --warning: #f59e0b;
             --radius: 12px;
             --shadow: 0 1px 3px rgba(0,0,0,0.08);
             --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
@@ -27,39 +25,21 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            font-size: 15px;
-            line-height: 1.6;
+            background: var(--bg); color: var(--text);
+            min-height: 100vh; font-size: 15px; line-height: 1.6;
         }
         .header {
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-            padding: 0 24px;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            background: var(--surface); border-bottom: 1px solid var(--border);
+            padding: 0 24px; height: 60px; display: flex; align-items: center;
+            justify-content: space-between; position: sticky; top: 0; z-index: 100;
             box-shadow: var(--shadow);
         }
-        .header-brand {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 700;
-            font-size: 18px;
-        }
+        .header-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; }
         .brand-icon {
-            width: 34px; height: 34px;
-            background: var(--primary);
-            border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
-            color: white; font-size: 18px;
+            width: 34px; height: 34px; background: var(--primary); border-radius: 8px;
+            display: flex; align-items: center; justify-content: center; color: white; font-size: 18px;
         }
+        .header-note { font-size: 12px; color: var(--text-muted); }
         .btn {
             display: inline-flex; align-items: center; gap: 6px;
             padding: 8px 16px; border-radius: 8px; border: none;
@@ -76,13 +56,9 @@
         .btn-icon { width: 36px; height: 36px; padding: 0; justify-content: center; }
         .main {
             max-width: 1280px; margin: 0 auto; padding: 24px;
-            display: grid;
-            grid-template-columns: 340px 1fr;
-            grid-template-rows: auto auto;
-            gap: 20px;
+            display: grid; grid-template-columns: 320px 1fr; gap: 20px;
         }
-        .recorder-panel { grid-column: 1; grid-row: 1; display: flex; flex-direction: column; gap: 16px; }
-        .transcript-panel { grid-column: 2; grid-row: 1; }
+        .recorder-panel { display: flex; flex-direction: column; gap: 16px; }
         .card {
             background: var(--surface); border-radius: var(--radius);
             padding: 20px; border: 1px solid var(--border); box-shadow: var(--shadow);
@@ -91,9 +67,7 @@
             font-size: 11px; font-weight: 700; text-transform: uppercase;
             letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 16px;
         }
-        .record-visual {
-            display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 12px 0;
-        }
+        .record-visual { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 12px 0; }
         .record-btn {
             width: 80px; height: 80px; border-radius: 50%; border: none;
             background: var(--danger); color: white; font-size: 30px;
@@ -107,22 +81,17 @@
             0%, 100% { box-shadow: 0 4px 16px rgba(239,68,68,0.35); }
             50% { box-shadow: 0 4px 28px rgba(239,68,68,0.65); }
         }
-        .record-timer {
-            font-size: 38px; font-weight: 800; font-variant-numeric: tabular-nums;
-            letter-spacing: 0.02em; color: var(--text);
-        }
+        .record-timer { font-size: 38px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
         .record-status { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
         .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-light); flex-shrink: 0; }
         .status-dot.recording { background: var(--danger); animation: blink 1s infinite; }
-        .status-dot.processing { background: var(--warning); }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
-        .controls-row { display: flex; gap: 8px; justify-content: center; margin-top: 4px; }
+        .controls-row { display: flex; gap: 8px; justify-content: center; margin-top: 12px; }
         .visualizer { width: 100%; height: 52px; background: var(--surface-2); border-radius: 8px; overflow: hidden; margin-top: 4px; }
         #waveCanvas { width: 100%; height: 100%; display: block; }
-        .chunk-info { font-size: 11px; color: var(--text-light); text-align: center; min-height: 16px; margin-top: 6px; }
         .form-group { margin-bottom: 12px; }
         .form-label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; }
-        select, input[type="text"], input[type="password"] {
+        select, input[type="text"] {
             width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px;
             font-size: 14px; color: var(--text); background: var(--surface);
             outline: none; transition: border-color 0.15s; font-family: inherit;
@@ -143,32 +112,25 @@
         .session-meta { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
         .panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
         .panel-title { font-size: 15px; font-weight: 700; }
-        .panel-actions { display: flex; gap: 8px; }
         .transcript-box {
             background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-            padding: 20px; height: 340px; overflow-y: auto; box-shadow: var(--shadow);
+            padding: 20px; height: calc(100vh - 160px); min-height: 400px; overflow-y: auto; box-shadow: var(--shadow);
         }
         .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 120px; color: var(--text-light); gap: 8px; text-align: center; }
         .empty-icon { font-size: 36px; opacity: 0.5; }
         .empty-text { font-size: 14px; }
-        .empty-sub { font-size: 12px; color: var(--text-light); }
         .transcript-line { display: flex; gap: 10px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border); align-items: flex-start; }
         .transcript-line:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
         .transcript-ts {
-            font-size: 11px; color: var(--primary); font-weight: 700;
-            font-variant-numeric: tabular-nums; white-space: nowrap;
-            background: var(--primary-light); padding: 2px 7px; border-radius: 4px;
+            font-size: 11px; color: var(--primary); font-weight: 700; font-variant-numeric: tabular-nums;
+            white-space: nowrap; background: var(--primary-light); padding: 2px 7px; border-radius: 4px;
             flex-shrink: 0; margin-top: 3px;
         }
         .transcript-text { font-size: 14px; line-height: 1.75; color: var(--text); }
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 24px; }
-        .modal-overlay.hidden { display: none; }
-        .modal { background: var(--surface); border-radius: var(--radius); padding: 28px; width: 100%; max-width: 460px; box-shadow: var(--shadow-md); }
-        .modal-title { font-size: 17px; font-weight: 700; margin-bottom: 20px; }
-        .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
-        .input-wrap { position: relative; }
-        .input-wrap input { padding-right: 40px; }
-        .input-eye { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 15px; padding: 2px; }
+        /* Interim (partial) recognition result */
+        .transcript-interim { display: flex; gap: 10px; margin-bottom: 12px; align-items: flex-start; }
+        .transcript-interim .transcript-ts { background: var(--surface-2); color: var(--text-muted); }
+        .transcript-interim .transcript-text { color: var(--text-muted); font-style: italic; }
         .toast-container { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 8px; z-index: 300; }
         .toast { padding: 11px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; box-shadow: var(--shadow-md); animation: slide-in 0.25s ease; max-width: 300px; }
         .toast-success { background: #064e3b; color: white; }
@@ -177,53 +139,22 @@
         @keyframes slide-in { from { transform: translateX(110%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @media (max-width: 800px) {
             .main { grid-template-columns: 1fr; }
-            .recorder-panel, .transcript-panel { grid-column: 1; grid-row: auto; }
         }
     </style>
 </head>
 <body>
 
-<!-- Settings Modal -->
-<div class="modal-overlay hidden" id="settingsModal">
-    <div class="modal">
-        <div class="modal-title">⚙️ 設定</div>
-        <div class="form-group">
-            <label class="form-label">OpenAI API Key（Whisper 轉錄）</label>
-            <div class="input-wrap">
-                <input type="password" id="openaiKey" placeholder="sk-..." autocomplete="off" />
-                <button class="input-eye" onclick="toggleVis('openaiKey')">👁</button>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="form-label">轉錄分段間隔（秒）</label>
-            <select id="chunkSec">
-                <option value="10">10 秒</option>
-                <option value="15" selected>15 秒</option>
-                <option value="20">20 秒</option>
-                <option value="30">30 秒</option>
-            </select>
-        </div>
-        <p style="font-size:12px;color:var(--text-muted);">API Key 僅存於本地瀏覽器，不會上傳至任何伺服器。</p>
-        <div class="modal-footer">
-            <button class="btn btn-ghost" onclick="closeSettings()">取消</button>
-            <button class="btn btn-primary" onclick="saveSettings()">儲存</button>
-        </div>
-    </div>
-</div>
-
-<!-- Header -->
 <header class="header">
     <div class="header-brand">
         <div class="brand-icon">🎙</div>
         <span>智慧錄音 Smart Recorder</span>
     </div>
-    <button class="btn btn-ghost btn-icon" onclick="openSettings()" title="設定">⚙️</button>
+    <span class="header-note">使用瀏覽器內建語音辨識（Chrome / Edge）</span>
 </header>
 
-<!-- Main -->
 <div class="main">
 
-    <!-- Left Panel -->
+    <!-- 左側控制面板 -->
     <div class="recorder-panel">
 
         <div class="card">
@@ -237,8 +168,7 @@
                 </div>
             </div>
             <div class="visualizer"><canvas id="waveCanvas"></canvas></div>
-            <div class="chunk-info" id="chunkInfo"></div>
-            <div class="controls-row" style="margin-top:12px;">
+            <div class="controls-row">
                 <button class="btn btn-ghost" id="pauseBtn" onclick="togglePause()" disabled>⏸ 暫停</button>
                 <button class="btn btn-danger" id="stopBtn" onclick="stopRecording()" disabled>⏹ 停止</button>
             </div>
@@ -247,13 +177,13 @@
         <div class="card">
             <div class="card-title">錄音設定</div>
             <div class="form-group">
-                <label class="form-label">語言</label>
+                <label class="form-label">辨識語言</label>
                 <select id="langSelect">
-                    <option value="">自動偵測</option>
-                    <option value="zh">繁體中文</option>
-                    <option value="en">English</option>
-                    <option value="ja">日本語</option>
-                    <option value="ko">한국어</option>
+                    <option value="zh-TW">繁體中文</option>
+                    <option value="zh-CN">簡體中文</option>
+                    <option value="en-US">English</option>
+                    <option value="ja-JP">日本語</option>
+                    <option value="ko-KR">한국어</option>
                 </select>
             </div>
             <div class="form-group" style="margin-bottom:0;">
@@ -265,7 +195,7 @@
         <div class="card">
             <div class="card-title">本次統計</div>
             <div class="stats">
-                <div class="stat-item"><div class="stat-label">片段數</div><div class="stat-value" id="statChunks">0</div></div>
+                <div class="stat-item"><div class="stat-label">句數</div><div class="stat-value" id="statSents">0</div></div>
                 <div class="stat-item"><div class="stat-label">字數</div><div class="stat-value" id="statWords">0</div></div>
             </div>
         </div>
@@ -273,19 +203,17 @@
         <div class="card">
             <div class="card-title">歷史記錄</div>
             <div class="sessions-list" id="sessionsList">
-                <div class="empty-state" style="min-height:60px;"><span class="empty-sub">尚無記錄</span></div>
+                <div class="empty-state" style="min-height:60px;"><span style="font-size:12px;color:var(--text-light);">尚無記錄</span></div>
             </div>
         </div>
 
     </div>
 
-    <!-- Transcript Panel -->
+    <!-- 右側轉錄面板 -->
     <div class="transcript-panel">
         <div class="panel-header">
             <div class="panel-title">即時轉錄</div>
-            <div class="panel-actions">
-                <button class="btn btn-ghost" id="dlTranscriptBtn" onclick="downloadTranscript()" disabled>⬇ 下載逐字稿 .md</button>
-            </div>
+            <button class="btn btn-ghost" id="dlBtn" onclick="downloadTranscript()" disabled>⬇ 下載逐字稿 .md</button>
         </div>
         <div class="transcript-box" id="transcriptBox">
             <div class="empty-state">
@@ -295,33 +223,27 @@
         </div>
     </div>
 
-
 </div>
 
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
-// ── Config ────────────────────────────────────────
-const WHISPER_URL = 'https://api.openai.com/v1/audio/transcriptions';
-
-let cfg = { openaiKey: '', chunkSec: 15 };
-
+// ── State ─────────────────────────────────────────
 let rec = {
     active: false, paused: false,
-    startTime: null, elapsed: 0,
-    timerInterval: null,
+    startTime: null, elapsed: 0, timerInterval: null,
     stream: null, audioCtx: null, analyser: null, rafId: null,
-    mediaRecorder: null,
-    transcript: [],   // {ts, text}
-    chunkCount: 0, wordCount: 0,
-    pendingCount: 0,
+    recognition: null,
+    transcript: [],   // { ts, text }
+    sentCount: 0, wordCount: 0,
+    interimEl: null,  // DOM element for partial result
 };
 
 // ── IndexedDB ────────────────────────────────────
 let db;
 function initDB() {
     return new Promise((res, rej) => {
-        const r = indexedDB.open('SmartRecorder', 1);
+        const r = indexedDB.open('SmartRecorder', 2);
         r.onupgradeneeded = e => {
             const d = e.target.result;
             if (!d.objectStoreNames.contains('sessions'))
@@ -355,119 +277,95 @@ function dbDelete(id) {
     });
 }
 
-// ── Settings ─────────────────────────────────────
-function loadCfg() {
-    try { const s = localStorage.getItem('srCfg'); if (s) cfg = { ...cfg, ...JSON.parse(s) }; } catch {}
-}
-function openSettings() {
-    document.getElementById('openaiKey').value = cfg.openaiKey;
-    document.getElementById('chunkSec').value = cfg.chunkSec;
-    document.getElementById('settingsModal').classList.remove('hidden');
-}
-function closeSettings() { document.getElementById('settingsModal').classList.add('hidden'); }
-function saveSettings() {
-    cfg.openaiKey = document.getElementById('openaiKey').value.trim();
-    cfg.chunkSec  = parseInt(document.getElementById('chunkSec').value);
-    localStorage.setItem('srCfg', JSON.stringify(cfg));
-    closeSettings();
-    toast('設定已儲存', 'success');
-}
-function toggleVis(id) {
-    const el = document.getElementById(id);
-    el.type = el.type === 'password' ? 'text' : 'password';
-}
+// ── Speech Recognition ────────────────────────────
+function buildRecognition() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) {
+        toast('此瀏覽器不支援語音辨識，請改用 Chrome 或 Edge', 'error');
+        return null;
+    }
+    const sr = new SR();
+    sr.continuous = true;
+    sr.interimResults = true;
+    sr.lang = document.getElementById('langSelect').value;
 
-// ── API ───────────────────────────────────────────
-async function whisper(blob, lang) {
-    const fd = new FormData();
-    fd.append('file', blob, 'chunk.webm');
-    fd.append('model', 'whisper-1');
-    fd.append('response_format', 'verbose_json');
-    fd.append('timestamp_granularities[]', 'segment');
-    if (lang) fd.append('language', lang);
+    sr.onresult = event => {
+        let interim = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            if (event.results[i].isFinal) {
+                const text = event.results[i][0].transcript.trim();
+                if (text) addFinalLine(text);
+            } else {
+                interim += event.results[i][0].transcript;
+            }
+        }
+        updateInterim(interim);
+    };
 
-    const r = await fetch(WHISPER_URL, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${cfg.openaiKey}` },
-        body: fd,
-    });
-    if (!r.ok) { const e = await r.json(); throw new Error(e.error?.message || r.statusText); }
-    return r.json();
+    sr.onerror = e => {
+        if (e.error === 'no-speech' || e.error === 'aborted') return;
+        toast('語音辨識錯誤：' + e.error, 'error');
+    };
+
+    // Auto-restart when recognition stops (happens naturally every ~60s in Chrome)
+    sr.onend = () => {
+        if (rec.active && !rec.paused) {
+            try { sr.start(); } catch {}
+        }
+    };
+
+    return sr;
 }
 
 // ── Recording ─────────────────────────────────────
 async function toggleRecord() {
-    if (rec.active) { stopRecording(); } else { await startRecording(); }
+    if (rec.active) stopRecording(); else await startRecording();
 }
 
 async function startRecording() {
-    if (!cfg.openaiKey) { openSettings(); toast('請先填入 OpenAI API Key', 'error'); return; }
     try {
-        rec.stream = await navigator.mediaDevices.getUserMedia({
-            audio: { echoCancellation: true, noiseSuppression: true, sampleRate: 16000 }
-        });
-    } catch (e) { toast('無法存取麥克風：' + e.message, 'error'); return; }
+        rec.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch (e) {
+        toast('無法存取麥克風：' + e.message, 'error');
+        return;
+    }
+
+    rec.recognition = buildRecognition();
+    if (!rec.recognition) {
+        rec.stream.getTracks().forEach(t => t.stop());
+        return;
+    }
 
     rec.active = true; rec.paused = false;
     rec.startTime = Date.now(); rec.elapsed = 0;
-    rec.transcript = [];
-    rec.chunkCount = 0; rec.wordCount = 0; rec.pendingCount = 0;
+    rec.transcript = []; rec.sentCount = 0; rec.wordCount = 0;
+    rec.interimEl = null;
 
     setupVisualizer(rec.stream);
     rec.timerInterval = setInterval(tickTimer, 1000);
     updateUI();
-    resetTranscriptBox();
-    scheduleChunk();
+    resetBox();
+
+    try { rec.recognition.start(); } catch {}
     toast('錄音開始', 'info');
-}
-
-function scheduleChunk() {
-    if (!rec.active || rec.paused) return;
-    const chunkStartMs = rec.elapsed * 1000;
-    const chunks = [];
-    const mime = getSupportedMime();
-
-    let mr;
-    try { mr = new MediaRecorder(rec.stream, { mimeType: mime }); }
-    catch { mr = new MediaRecorder(rec.stream); }
-
-    mr.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
-    mr.onstop = async () => {
-        if (!chunks.length) { if (rec.active && !rec.paused) scheduleChunk(); return; }
-        const blob = new Blob(chunks, { type: mime || 'audio/webm' });
-        rec.chunkCount++;
-        rec.pendingCount++;
-        updateStats();
-        setChunkInfo(`正在轉錄第 ${rec.chunkCount} 段...`);
-        try {
-            const lang = document.getElementById('langSelect').value;
-            const data = await whisper(blob, lang);
-            appendTranscript(data, chunkStartMs);
-        } catch (e) {
-            toast('轉錄錯誤：' + e.message, 'error');
-        }
-        rec.pendingCount--;
-        if (rec.pendingCount === 0) setChunkInfo('');
-        if (rec.active && !rec.paused) scheduleChunk();
-    };
-
-    mr.start();
-    rec.mediaRecorder = mr;
-    setTimeout(() => { if (mr.state === 'recording') mr.stop(); }, cfg.chunkSec * 1000);
 }
 
 function stopRecording() {
     if (!rec.active) return;
     rec.active = false; rec.paused = false;
-    if (rec.mediaRecorder && rec.mediaRecorder.state !== 'inactive') rec.mediaRecorder.stop();
+
+    if (rec.recognition) { try { rec.recognition.stop(); } catch {} rec.recognition = null; }
     clearInterval(rec.timerInterval);
     if (rec.stream) rec.stream.getTracks().forEach(t => t.stop());
     if (rec.rafId) cancelAnimationFrame(rec.rafId);
+
+    removeInterim();
     updateUI();
+
     if (rec.transcript.length > 0) {
-        document.getElementById('dlTranscriptBtn').disabled = false;
+        document.getElementById('dlBtn').disabled = false;
         toast('錄音已停止', 'success');
-        saveCurrentSession();
+        saveSession();
     } else {
         toast('錄音已停止', 'info');
     }
@@ -480,49 +378,62 @@ function togglePause() {
         rec.paused = false;
         rec.startTime = Date.now() - rec.elapsed * 1000;
         rec.timerInterval = setInterval(tickTimer, 1000);
-        scheduleChunk();
+        if (rec.recognition) try { rec.recognition.start(); } catch {}
         document.getElementById('pauseBtn').textContent = '⏸ 暫停';
         setStatus('recording', '錄音中...');
     } else {
         rec.paused = true;
         clearInterval(rec.timerInterval);
-        if (rec.mediaRecorder && rec.mediaRecorder.state === 'recording') rec.mediaRecorder.stop();
+        if (rec.recognition) try { rec.recognition.stop(); } catch {}
+        removeInterim();
         document.getElementById('pauseBtn').textContent = '▶ 繼續';
         setStatus('', '已暫停');
     }
 }
 
-function getSupportedMime() {
-    for (const t of ['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/mp4'])
-        if (MediaRecorder.isTypeSupported(t)) return t;
-    return '';
-}
-
-// ── Transcript ────────────────────────────────────
-function appendTranscript(data, chunkStartMs) {
+// ── Transcript helpers ────────────────────────────
+function addFinalLine(text) {
+    removeInterim();
     const box = document.getElementById('transcriptBox');
     const empty = box.querySelector('.empty-state');
     if (empty) empty.remove();
 
-    const segs = data.segments?.length ? data.segments : [{ start: 0, text: data.text }];
-    segs.forEach(seg => {
-        const text = (seg.text || '').trim();
-        if (!text) return;
-        const absMs = chunkStartMs + (seg.start || 0) * 1000;
-        const ts = fmtTs(absMs);
-        rec.transcript.push({ ts, text });
-        rec.wordCount += text.length;
+    const ts = fmtTs(rec.elapsed * 1000);
+    rec.transcript.push({ ts, text });
+    rec.sentCount++;
+    rec.wordCount += text.length;
 
-        const el = document.createElement('div');
-        el.className = 'transcript-line';
-        el.innerHTML = `<span class="transcript-ts">${ts}</span><span class="transcript-text">${esc(text)}</span>`;
-        box.appendChild(el);
-    });
+    const el = document.createElement('div');
+    el.className = 'transcript-line';
+    el.innerHTML = `<span class="transcript-ts">${ts}</span><span class="transcript-text">${esc(text)}</span>`;
+    box.appendChild(el);
+    box.scrollTop = box.scrollHeight;
     updateStats();
+}
+
+function updateInterim(text) {
+    const box = document.getElementById('transcriptBox');
+    if (!text) { removeInterim(); return; }
+
+    if (!rec.interimEl) {
+        // Remove empty state if still showing
+        const empty = box.querySelector('.empty-state');
+        if (empty) empty.remove();
+
+        rec.interimEl = document.createElement('div');
+        rec.interimEl.className = 'transcript-interim';
+        rec.interimEl.innerHTML = `<span class="transcript-ts">${fmtTs(rec.elapsed * 1000)}</span><span class="transcript-text"></span>`;
+        box.appendChild(rec.interimEl);
+    }
+    rec.interimEl.querySelector('.transcript-text').textContent = text;
     box.scrollTop = box.scrollHeight;
 }
 
-function resetTranscriptBox() {
+function removeInterim() {
+    if (rec.interimEl) { rec.interimEl.remove(); rec.interimEl = null; }
+}
+
+function resetBox() {
     document.getElementById('transcriptBox').innerHTML = `
         <div class="empty-state">
             <div class="empty-icon">🎤</div>
@@ -537,18 +448,15 @@ function downloadTranscript() {
     const date  = new Date().toLocaleDateString('zh-TW');
     let out = `# ${title}\n日期：${date}\n\n---\n\n## 逐字稿\n\n`;
     out += rec.transcript.map(t => `[${t.ts}] ${t.text}`).join('\n\n');
-    dlFile(out, `${title}_逐字稿.md`);
-}
-
-function dlFile(content, filename) {
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([content], { type: 'text/markdown;charset=utf-8' }));
-    a.download = filename; a.click();
-    toast(`已下載 ${filename}`, 'success');
+    a.href = URL.createObjectURL(new Blob([out], { type: 'text/markdown;charset=utf-8' }));
+    a.download = `${title}_逐字稿.md`;
+    a.click();
+    toast('已下載逐字稿', 'success');
 }
 
 // ── Sessions ──────────────────────────────────────
-async function saveCurrentSession() {
+async function saveSession() {
     if (!rec.transcript.length) return;
     const title = document.getElementById('recordTitle').value ||
         `錄音 ${new Date().toLocaleDateString('zh-TW')} ${new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})}`;
@@ -558,10 +466,10 @@ async function saveCurrentSession() {
 }
 
 async function loadSessions() {
-    const sessions = await dbGetAll();
     const list = document.getElementById('sessionsList');
+    const sessions = await dbGetAll();
     if (!sessions.length) {
-        list.innerHTML = `<div class="empty-state" style="min-height:60px;"><span class="empty-sub">尚無記錄</span></div>`;
+        list.innerHTML = `<div class="empty-state" style="min-height:60px;"><span style="font-size:12px;color:var(--text-light);">尚無記錄</span></div>`;
         return;
     }
     list.innerHTML = sessions.map(s => `
@@ -580,6 +488,7 @@ async function loadSession(id) {
     if (!s) return;
     rec.transcript = s.transcript;
     rec.wordCount  = s.wordCount || 0;
+    rec.sentCount  = s.transcript.length;
     rec.elapsed    = s.duration || 0;
 
     document.getElementById('timer').textContent = fmtTs(rec.elapsed * 1000);
@@ -594,7 +503,7 @@ async function loadSession(id) {
         box.appendChild(el);
     });
 
-    document.getElementById('dlTranscriptBtn').disabled = false;
+    document.getElementById('dlBtn').disabled = false;
     updateStats();
     toast(`已載入：${s.title}`, 'info');
 }
@@ -613,10 +522,7 @@ function setupVisualizer(stream) {
     rec.analyser = rec.audioCtx.createAnalyser();
     rec.analyser.fftSize = 256;
     src.connect(rec.analyser);
-    drawWave();
-}
 
-function drawWave() {
     const canvas = document.getElementById('waveCanvas');
     const ctx = canvas.getContext('2d');
     const dpr = window.devicePixelRatio || 1;
@@ -626,7 +532,7 @@ function drawWave() {
     const W = canvas.offsetWidth, H = canvas.offsetHeight;
     const buf = new Uint8Array(rec.analyser.frequencyBinCount);
 
-    function frame() {
+    (function frame() {
         rec.rafId = requestAnimationFrame(frame);
         rec.analyser.getByteTimeDomainData(buf);
         ctx.fillStyle = '#f1f5f9';
@@ -641,13 +547,12 @@ function drawWave() {
         });
         ctx.lineTo(W, H / 2);
         ctx.stroke();
-    }
-    frame();
+    })();
 }
 
 // ── UI helpers ────────────────────────────────────
 function updateUI() {
-    const btn = document.getElementById('recordBtn');
+    const btn     = document.getElementById('recordBtn');
     const pauseBtn = document.getElementById('pauseBtn');
     const stopBtn  = document.getElementById('stopBtn');
     if (rec.active) {
@@ -673,41 +578,33 @@ function tickTimer() {
 }
 
 function updateStats() {
-    document.getElementById('statChunks').textContent = rec.chunkCount;
+    document.getElementById('statSents').textContent = rec.sentCount;
     document.getElementById('statWords').textContent  = rec.wordCount;
 }
-
-function setChunkInfo(t) { document.getElementById('chunkInfo').textContent = t; }
 
 function fmtTs(ms) {
     const s = Math.floor(ms / 1000);
     const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), ss = s % 60;
-    return h > 0
-        ? `${pad(h)}:${pad(m)}:${pad(ss)}`
-        : `${pad(m)}:${pad(ss)}`;
+    return h > 0 ? `${pad(h)}:${pad(m)}:${pad(ss)}` : `${pad(m)}:${pad(ss)}`;
 }
 function pad(n) { return String(n).padStart(2, '0'); }
 function esc(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 function toast(msg, type = 'info') {
-    const c = document.getElementById('toastContainer');
     const el = document.createElement('div');
     el.className = `toast toast-${type}`;
     el.textContent = msg;
-    c.appendChild(el);
+    document.getElementById('toastContainer').appendChild(el);
     setTimeout(() => el.remove(), 3500);
 }
 
 // ── Init ──────────────────────────────────────────
 (async function init() {
-    loadCfg();
     await initDB();
     await loadSessions();
-    document.getElementById('settingsModal').addEventListener('click', e => {
-        if (e.target === document.getElementById('settingsModal')) closeSettings();
-    });
-    if (!cfg.openaiKey) {
-        setTimeout(() => toast('請先在 ⚙️ 設定中填入 API Key', 'info'), 600);
+    // Check browser support upfront
+    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+        setTimeout(() => toast('請使用 Chrome 或 Edge 瀏覽器以啟用語音辨識', 'error'), 600);
     }
 })();
 </script>
