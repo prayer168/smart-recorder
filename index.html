@@ -307,10 +307,12 @@ function buildRecognition() {
         toast('語音辨識錯誤：' + e.error, 'error');
     };
 
-    // Chrome stops recognition every ~30-60s; restart with a fresh instance
+    // Chrome stops recognition every ~30-60s; restart with a fresh instance.
+    // Guard: only restart if THIS instance is still the active one,
+    // so a stale onend from an aborted instance doesn't trigger a second restart.
     sr.onend = () => {
-        if (rec.active && !rec.paused) {
-            setTimeout(restartRecognition, 150);
+        if (rec.active && !rec.paused && rec.recognition === sr) {
+            setTimeout(restartRecognition, 200);
         }
     };
 
@@ -319,9 +321,8 @@ function buildRecognition() {
 
 function restartRecognition() {
     if (!rec.active || rec.paused) return;
-    if (rec.recognition) {
-        try { rec.recognition.abort(); } catch {}
-    }
+    // Do NOT abort the old instance — it already ended (onend already fired).
+    // Just build a fresh one and start it.
     const sr = buildRecognition();
     if (!sr) return;
     rec.recognition = sr;
