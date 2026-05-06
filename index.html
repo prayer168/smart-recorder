@@ -307,14 +307,25 @@ function buildRecognition() {
         toast('語音辨識錯誤：' + e.error, 'error');
     };
 
-    // Auto-restart when recognition stops (happens naturally every ~60s in Chrome)
+    // Chrome stops recognition every ~30-60s; restart with a fresh instance
     sr.onend = () => {
         if (rec.active && !rec.paused) {
-            try { sr.start(); } catch {}
+            setTimeout(restartRecognition, 150);
         }
     };
 
     return sr;
+}
+
+function restartRecognition() {
+    if (!rec.active || rec.paused) return;
+    if (rec.recognition) {
+        try { rec.recognition.abort(); } catch {}
+    }
+    const sr = buildRecognition();
+    if (!sr) return;
+    rec.recognition = sr;
+    try { sr.start(); } catch {}
 }
 
 // ── Recording ─────────────────────────────────────
