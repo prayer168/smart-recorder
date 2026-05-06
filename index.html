@@ -278,6 +278,8 @@ function dbDelete(id) {
 }
 
 // ── Speech Recognition ────────────────────────────
+// Use continuous:false so Chrome fires onend after each phrase (~5-10s).
+// We restart immediately on each onend → reliable unlimited duration.
 function buildRecognition() {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) {
@@ -285,7 +287,7 @@ function buildRecognition() {
         return null;
     }
     const sr = new SR();
-    sr.continuous = true;
+    sr.continuous = false;      // Shorter, predictable sessions; restart each time
     sr.interimResults = true;
     sr.lang = document.getElementById('langSelect').value;
 
@@ -307,12 +309,11 @@ function buildRecognition() {
         toast('語音辨識錯誤：' + e.error, 'error');
     };
 
-    // Chrome stops recognition every ~30-60s; restart with a fresh instance.
-    // Guard: only restart if THIS instance is still the active one,
-    // so a stale onend from an aborted instance doesn't trigger a second restart.
+    // Guard: only the currently active instance may trigger a restart
     sr.onend = () => {
+        removeInterim();
         if (rec.active && !rec.paused && rec.recognition === sr) {
-            setTimeout(restartRecognition, 200);
+            restartRecognition();
         }
     };
 
@@ -321,12 +322,15 @@ function buildRecognition() {
 
 function restartRecognition() {
     if (!rec.active || rec.paused) return;
-    // Do NOT abort the old instance — it already ended (onend already fired).
-    // Just build a fresh one and start it.
     const sr = buildRecognition();
     if (!sr) return;
     rec.recognition = sr;
-    try { sr.start(); } catch {}
+    try {
+        sr.start();
+    } catch {
+        // Chrome occasionally needs a tiny gap before accepting a new start
+        setTimeout(() => { if (rec.active && !rec.paused) try { sr.start(); } catch {} }, 150);
+    }
 }
 
 // ── Recording ─────────────────────────────────────
