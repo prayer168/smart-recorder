@@ -340,7 +340,14 @@ async function toggleRecord() {
 
 async function startRecording() {
     try {
-        rec.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        rec.stream = await navigator.mediaDevices.getUserMedia({
+            audio: {
+                echoCancellation: true,
+                noiseSuppression: true,
+                autoGainControl: true,
+                sampleRate: 16000,
+            }
+        });
     } catch (e) {
         toast('無法存取麥克風：' + e.message, 'error');
         return;
