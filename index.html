@@ -18,6 +18,7 @@
             --border: #e2e8f0;
             --danger: #ef4444;
             --danger-hover: #dc2626;
+            --success: #10b981;
             --radius: 12px;
             --shadow: 0 1px 3px rgba(0,0,0,0.08);
             --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
@@ -39,7 +40,11 @@
             width: 34px; height: 34px; background: var(--primary); border-radius: 8px;
             display: flex; align-items: center; justify-content: center; color: white; font-size: 18px;
         }
-        .header-note { font-size: 12px; color: var(--text-muted); }
+        .mode-badge {
+            font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px;
+            border: 1px solid var(--border); color: var(--text-muted); background: var(--surface-2);
+        }
+        .mode-badge.whisper { background: #ede9fe; border-color: #a78bfa; color: #5b21b6; }
         .btn {
             display: inline-flex; align-items: center; gap: 6px;
             padding: 8px 16px; border-radius: 8px; border: none;
@@ -85,18 +90,23 @@
         .record-status { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
         .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-light); flex-shrink: 0; }
         .status-dot.recording { background: var(--danger); animation: blink 1s infinite; }
+        .status-dot.processing { background: #f59e0b; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
         .controls-row { display: flex; gap: 8px; justify-content: center; margin-top: 12px; }
         .visualizer { width: 100%; height: 52px; background: var(--surface-2); border-radius: 8px; overflow: hidden; margin-top: 4px; }
         #waveCanvas { width: 100%; height: 100%; display: block; }
+        .chunk-info { font-size: 11px; color: var(--text-light); text-align: center; min-height: 16px; margin-top: 6px; }
         .form-group { margin-bottom: 12px; }
         .form-label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; }
-        select, input[type="text"] {
+        select, input[type="text"], input[type="password"] {
             width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px;
             font-size: 14px; color: var(--text); background: var(--surface);
             outline: none; transition: border-color 0.15s; font-family: inherit;
         }
         select:focus, input:focus { border-color: var(--primary); }
+        .input-wrap { position: relative; }
+        .input-wrap input { padding-right: 40px; }
+        .input-eye { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 14px; }
         .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .stat-item { background: var(--surface-2); border-radius: 8px; padding: 10px 14px; }
         .stat-label { font-size: 10px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
@@ -127,10 +137,23 @@
             flex-shrink: 0; margin-top: 3px;
         }
         .transcript-text { font-size: 14px; line-height: 1.75; color: var(--text); }
-        /* Interim (partial) recognition result */
         .transcript-interim { display: flex; gap: 10px; margin-bottom: 12px; align-items: flex-start; }
         .transcript-interim .transcript-ts { background: var(--surface-2); color: var(--text-muted); }
         .transcript-interim .transcript-text { color: var(--text-muted); font-style: italic; }
+        /* Settings modal */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 24px; }
+        .modal-overlay.hidden { display: none; }
+        .modal { background: var(--surface); border-radius: var(--radius); padding: 28px; width: 100%; max-width: 460px; box-shadow: var(--shadow-md); }
+        .modal-title { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+        .modal-subtitle { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+        .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+        .tip { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+        .tip a { color: var(--primary); }
+        /* Loading spinner */
+        .spinner { width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        /* Toast */
         .toast-container { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 8px; z-index: 300; }
         .toast { padding: 11px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; box-shadow: var(--shadow-md); animation: slide-in 0.25s ease; max-width: 300px; }
         .toast-success { background: #064e3b; color: white; }
@@ -144,14 +167,53 @@
 </head>
 <body>
 
+<!-- Settings Modal -->
+<div class="modal-overlay hidden" id="settingsModal">
+    <div class="modal">
+        <div class="modal-title">⚙️ 設定</div>
+        <div class="modal-subtitle">填入 OpenAI API Key 可啟用高精度 Whisper 轉錄；留空則使用瀏覽器內建辨識（免費）。</div>
+
+        <div class="form-group">
+            <label class="form-label">OpenAI API Key（選填）</label>
+            <div class="input-wrap">
+                <input type="password" id="openaiKey" placeholder="sk-..." autocomplete="off" />
+                <button class="input-eye" onclick="toggleVis('openaiKey')">👁</button>
+            </div>
+        </div>
+        <div class="form-group" id="chunkSecGroup">
+            <label class="form-label">Whisper 分段間隔（秒）</label>
+            <select id="chunkSec">
+                <option value="10">10 秒</option>
+                <option value="15" selected>15 秒</option>
+                <option value="20">20 秒</option>
+                <option value="30">30 秒</option>
+            </select>
+        </div>
+        <hr class="divider">
+        <p class="tip">API Key 僅存於本地瀏覽器，不會上傳至任何伺服器。<br>
+        Whisper 費率約 $0.006 USD / 分鐘，非常便宜。<br>
+        <a href="https://platform.openai.com/settings/billing" target="_blank">前往 OpenAI 帳戶加值 →</a></p>
+
+        <div class="modal-footer">
+            <button class="btn btn-ghost" onclick="closeSettings()">取消</button>
+            <button class="btn btn-primary" onclick="saveSettings()">儲存</button>
+        </div>
+    </div>
+</div>
+
+<!-- Header -->
 <header class="header">
     <div class="header-brand">
         <div class="brand-icon">🎙</div>
         <span>智慧錄音 Smart Recorder</span>
     </div>
-    <span class="header-note">使用瀏覽器內建語音辨識（Chrome / Edge）</span>
+    <div style="display:flex;align-items:center;gap:10px;">
+        <span class="mode-badge" id="modeBadge">瀏覽器辨識</span>
+        <button class="btn btn-ghost btn-icon" onclick="openSettings()" title="設定">⚙️</button>
+    </div>
 </header>
 
+<!-- Main -->
 <div class="main">
 
     <!-- 左側控制面板 -->
@@ -168,6 +230,7 @@
                 </div>
             </div>
             <div class="visualizer"><canvas id="waveCanvas"></canvas></div>
+            <div class="chunk-info" id="chunkInfo"></div>
             <div class="controls-row">
                 <button class="btn btn-ghost" id="pauseBtn" onclick="togglePause()" disabled>⏸ 暫停</button>
                 <button class="btn btn-danger" id="stopBtn" onclick="stopRecording()" disabled>⏹ 停止</button>
@@ -228,16 +291,28 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
+// ── Config ────────────────────────────────────────
+const WHISPER_URL = 'https://api.openai.com/v1/audio/transcriptions';
+
+let cfg = { openaiKey: '', chunkSec: 15 };
+
+// Language map for Whisper (BCP-47 → ISO-639-1)
+const WHISPER_LANG = { 'zh-TW': 'zh', 'zh-CN': 'zh', 'en-US': 'en', 'ja-JP': 'ja', 'ko-KR': 'ko' };
+
 // ── State ─────────────────────────────────────────
 let rec = {
     active: false, paused: false,
     startTime: null, elapsed: 0, timerInterval: null,
     stream: null, audioCtx: null, analyser: null, rafId: null,
-    recognition: null,
-    transcript: [],   // { ts, text }
-    sentCount: 0, wordCount: 0,
-    interimEl: null,  // DOM element for partial result
+    // Whisper mode
+    mediaRecorder: null, chunkCount: 0, pendingCount: 0,
+    // Web Speech mode
+    recognition: null, interimEl: null,
+    // Shared
+    transcript: [], sentCount: 0, wordCount: 0,
 };
+
+function useWhisper() { return !!cfg.openaiKey; }
 
 // ── IndexedDB ────────────────────────────────────
 let db;
@@ -277,17 +352,213 @@ function dbDelete(id) {
     });
 }
 
-// ── Speech Recognition ────────────────────────────
-// Use continuous:false so Chrome fires onend after each phrase (~5-10s).
-// We restart immediately on each onend → reliable unlimited duration.
+// ── Settings ─────────────────────────────────────
+function loadCfg() {
+    try { const s = localStorage.getItem('srCfg'); if (s) cfg = { ...cfg, ...JSON.parse(s) }; } catch {}
+}
+function openSettings() {
+    document.getElementById('openaiKey').value = cfg.openaiKey;
+    document.getElementById('chunkSec').value = cfg.chunkSec;
+    document.getElementById('settingsModal').classList.remove('hidden');
+}
+function closeSettings() { document.getElementById('settingsModal').classList.add('hidden'); }
+function saveSettings() {
+    cfg.openaiKey = document.getElementById('openaiKey').value.trim();
+    cfg.chunkSec  = parseInt(document.getElementById('chunkSec').value);
+    localStorage.setItem('srCfg', JSON.stringify(cfg));
+    closeSettings();
+    updateModeBadge();
+    toast('設定已儲存', 'success');
+}
+function toggleVis(id) {
+    const el = document.getElementById(id);
+    el.type = el.type === 'password' ? 'text' : 'password';
+}
+function updateModeBadge() {
+    const b = document.getElementById('modeBadge');
+    if (useWhisper()) { b.textContent = '✦ Whisper 高精度'; b.className = 'mode-badge whisper'; }
+    else { b.textContent = '瀏覽器辨識'; b.className = 'mode-badge'; }
+}
+
+// ── Whisper API ───────────────────────────────────
+async function callWhisper(blob, lang) {
+    const fd = new FormData();
+    fd.append('file', blob, 'chunk.webm');
+    fd.append('model', 'whisper-1');
+    fd.append('response_format', 'verbose_json');
+    fd.append('timestamp_granularities[]', 'segment');
+    if (lang) fd.append('language', lang);
+    const r = await fetch(WHISPER_URL, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${cfg.openaiKey}` },
+        body: fd,
+    });
+    if (!r.ok) { const e = await r.json(); throw new Error(e.error?.message || r.statusText); }
+    return r.json();
+}
+
+// ── Recording ─────────────────────────────────────
+async function toggleRecord() {
+    if (rec.active) stopRecording(); else await startRecording();
+}
+
+async function startRecording() {
+    try {
+        rec.stream = await navigator.mediaDevices.getUserMedia({
+            audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, sampleRate: 16000 }
+        });
+    } catch (e) { toast('無法存取麥克風：' + e.message, 'error'); return; }
+
+    rec.active = true; rec.paused = false;
+    rec.startTime = Date.now(); rec.elapsed = 0;
+    rec.transcript = []; rec.sentCount = 0; rec.wordCount = 0;
+    rec.chunkCount = 0; rec.pendingCount = 0;
+    rec.interimEl = null;
+
+    setupVisualizer(rec.stream);
+    rec.timerInterval = setInterval(tickTimer, 1000);
+    updateUI();
+    resetBox();
+
+    if (useWhisper()) {
+        scheduleChunk();
+    } else {
+        startSpeechRecognition();
+    }
+    toast('錄音開始', 'info');
+}
+
+function stopRecording() {
+    if (!rec.active) return;
+    rec.active = false; rec.paused = false;
+
+    if (useWhisper()) {
+        if (rec.mediaRecorder && rec.mediaRecorder.state !== 'inactive') rec.mediaRecorder.stop();
+    } else {
+        if (rec.recognition) { try { rec.recognition.stop(); } catch {} rec.recognition = null; }
+        removeInterim();
+    }
+
+    clearInterval(rec.timerInterval);
+    if (rec.stream) rec.stream.getTracks().forEach(t => t.stop());
+    if (rec.rafId) cancelAnimationFrame(rec.rafId);
+
+    updateUI();
+    setChunkInfo('');
+
+    if (rec.transcript.length > 0) {
+        document.getElementById('dlBtn').disabled = false;
+        toast('錄音已停止', 'success');
+        saveSession();
+    } else {
+        toast('錄音已停止', 'info');
+    }
+    loadSessions();
+}
+
+function togglePause() {
+    if (!rec.active) return;
+    if (rec.paused) {
+        rec.paused = false;
+        rec.startTime = Date.now() - rec.elapsed * 1000;
+        rec.timerInterval = setInterval(tickTimer, 1000);
+        if (useWhisper()) { scheduleChunk(); }
+        else { if (rec.recognition) try { rec.recognition.start(); } catch {} }
+        document.getElementById('pauseBtn').textContent = '⏸ 暫停';
+        setStatus('recording', '錄音中...');
+    } else {
+        rec.paused = true;
+        clearInterval(rec.timerInterval);
+        if (useWhisper()) {
+            if (rec.mediaRecorder && rec.mediaRecorder.state === 'recording') rec.mediaRecorder.stop();
+        } else {
+            if (rec.recognition) try { rec.recognition.stop(); } catch {}
+            removeInterim();
+        }
+        document.getElementById('pauseBtn').textContent = '▶ 繼續';
+        setStatus('', '已暫停');
+    }
+}
+
+// ── Whisper mode: chunked MediaRecorder ───────────
+function scheduleChunk() {
+    if (!rec.active || rec.paused) return;
+    const chunkStartMs = rec.elapsed * 1000;
+    const chunks = [];
+    const mime = getSupportedMime();
+
+    let mr;
+    try { mr = new MediaRecorder(rec.stream, { mimeType: mime }); }
+    catch { mr = new MediaRecorder(rec.stream); }
+
+    mr.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+    mr.onstop = async () => {
+        if (!chunks.length) { if (rec.active && !rec.paused) scheduleChunk(); return; }
+        const blob = new Blob(chunks, { type: mime || 'audio/webm' });
+        rec.chunkCount++;
+        rec.pendingCount++;
+        updateStats();
+        setChunkInfo(`正在轉錄第 ${rec.chunkCount} 段...`);
+        try {
+            const lang = WHISPER_LANG[document.getElementById('langSelect').value] || '';
+            const data = await callWhisper(blob, lang);
+            appendWhisperResult(data, chunkStartMs);
+        } catch (e) {
+            toast('轉錄錯誤：' + e.message, 'error');
+        }
+        rec.pendingCount--;
+        if (rec.pendingCount === 0) setChunkInfo('');
+        if (rec.active && !rec.paused) scheduleChunk();
+    };
+
+    mr.start();
+    rec.mediaRecorder = mr;
+    setTimeout(() => { if (mr.state === 'recording') mr.stop(); }, cfg.chunkSec * 1000);
+}
+
+function getSupportedMime() {
+    for (const t of ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/mp4'])
+        if (MediaRecorder.isTypeSupported(t)) return t;
+    return '';
+}
+
+function appendWhisperResult(data, chunkStartMs) {
+    const box = document.getElementById('transcriptBox');
+    const empty = box.querySelector('.empty-state');
+    if (empty) empty.remove();
+
+    const segs = data.segments?.length ? data.segments : [{ start: 0, text: data.text }];
+    segs.forEach(seg => {
+        const text = (seg.text || '').trim();
+        if (!text) return;
+        const ts = fmtTs(chunkStartMs + (seg.start || 0) * 1000);
+        rec.transcript.push({ ts, text });
+        rec.sentCount++;
+        rec.wordCount += text.length;
+        const el = document.createElement('div');
+        el.className = 'transcript-line';
+        el.innerHTML = `<span class="transcript-ts">${ts}</span><span class="transcript-text">${esc(text)}</span>`;
+        box.appendChild(el);
+    });
+    updateStats();
+    box.scrollTop = box.scrollHeight;
+}
+
+// ── Web Speech mode ───────────────────────────────
+function startSpeechRecognition() {
+    if (!rec.active || rec.paused) return;
+    const sr = buildRecognition();
+    if (!sr) return;
+    rec.recognition = sr;
+    try { sr.start(); } catch {}
+}
+
 function buildRecognition() {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR) {
-        toast('此瀏覽器不支援語音辨識，請改用 Chrome 或 Edge', 'error');
-        return null;
-    }
+    if (!SR) { toast('此瀏覽器不支援語音辨識，請改用 Chrome 或 Edge', 'error'); return null; }
+
     const sr = new SR();
-    sr.continuous = false;      // Shorter, predictable sessions; restart each time
+    sr.continuous = false;
     sr.interimResults = true;
     sr.lang = document.getElementById('langSelect').value;
 
@@ -309,123 +580,30 @@ function buildRecognition() {
         toast('語音辨識錯誤：' + e.error, 'error');
     };
 
-    // Guard: only the currently active instance may trigger a restart
     sr.onend = () => {
         removeInterim();
         if (rec.active && !rec.paused && rec.recognition === sr) {
-            restartRecognition();
+            const newSr = buildRecognition();
+            if (!newSr) return;
+            rec.recognition = newSr;
+            try { newSr.start(); } catch {
+                setTimeout(() => { if (rec.active && !rec.paused) try { newSr.start(); } catch {} }, 150);
+            }
         }
     };
 
     return sr;
 }
 
-function restartRecognition() {
-    if (!rec.active || rec.paused) return;
-    const sr = buildRecognition();
-    if (!sr) return;
-    rec.recognition = sr;
-    try {
-        sr.start();
-    } catch {
-        // Chrome occasionally needs a tiny gap before accepting a new start
-        setTimeout(() => { if (rec.active && !rec.paused) try { sr.start(); } catch {} }, 150);
-    }
-}
-
-// ── Recording ─────────────────────────────────────
-async function toggleRecord() {
-    if (rec.active) stopRecording(); else await startRecording();
-}
-
-async function startRecording() {
-    try {
-        rec.stream = await navigator.mediaDevices.getUserMedia({
-            audio: {
-                echoCancellation: true,
-                noiseSuppression: true,
-                autoGainControl: true,
-                sampleRate: 16000,
-            }
-        });
-    } catch (e) {
-        toast('無法存取麥克風：' + e.message, 'error');
-        return;
-    }
-
-    rec.recognition = buildRecognition();
-    if (!rec.recognition) {
-        rec.stream.getTracks().forEach(t => t.stop());
-        return;
-    }
-
-    rec.active = true; rec.paused = false;
-    rec.startTime = Date.now(); rec.elapsed = 0;
-    rec.transcript = []; rec.sentCount = 0; rec.wordCount = 0;
-    rec.interimEl = null;
-
-    setupVisualizer(rec.stream);
-    rec.timerInterval = setInterval(tickTimer, 1000);
-    updateUI();
-    resetBox();
-
-    try { rec.recognition.start(); } catch {}
-    toast('錄音開始', 'info');
-}
-
-function stopRecording() {
-    if (!rec.active) return;
-    rec.active = false; rec.paused = false;
-
-    if (rec.recognition) { try { rec.recognition.stop(); } catch {} rec.recognition = null; }
-    clearInterval(rec.timerInterval);
-    if (rec.stream) rec.stream.getTracks().forEach(t => t.stop());
-    if (rec.rafId) cancelAnimationFrame(rec.rafId);
-
-    removeInterim();
-    updateUI();
-
-    if (rec.transcript.length > 0) {
-        document.getElementById('dlBtn').disabled = false;
-        toast('錄音已停止', 'success');
-        saveSession();
-    } else {
-        toast('錄音已停止', 'info');
-    }
-    loadSessions();
-}
-
-function togglePause() {
-    if (!rec.active) return;
-    if (rec.paused) {
-        rec.paused = false;
-        rec.startTime = Date.now() - rec.elapsed * 1000;
-        rec.timerInterval = setInterval(tickTimer, 1000);
-        if (rec.recognition) try { rec.recognition.start(); } catch {}
-        document.getElementById('pauseBtn').textContent = '⏸ 暫停';
-        setStatus('recording', '錄音中...');
-    } else {
-        rec.paused = true;
-        clearInterval(rec.timerInterval);
-        if (rec.recognition) try { rec.recognition.stop(); } catch {}
-        removeInterim();
-        document.getElementById('pauseBtn').textContent = '▶ 繼續';
-        setStatus('', '已暫停');
-    }
-}
-
-// ── Transcript helpers ────────────────────────────
 function addFinalLine(text) {
     removeInterim();
     const box = document.getElementById('transcriptBox');
     const empty = box.querySelector('.empty-state');
     if (empty) empty.remove();
-
     const ts = fmtTs(rec.elapsed * 1000);
     rec.transcript.push({ ts, text });
     rec.sentCount++;
     rec.wordCount += text.length;
-
     const el = document.createElement('div');
     el.className = 'transcript-line';
     el.innerHTML = `<span class="transcript-ts">${ts}</span><span class="transcript-text">${esc(text)}</span>`;
@@ -437,12 +615,9 @@ function addFinalLine(text) {
 function updateInterim(text) {
     const box = document.getElementById('transcriptBox');
     if (!text) { removeInterim(); return; }
-
     if (!rec.interimEl) {
-        // Remove empty state if still showing
         const empty = box.querySelector('.empty-state');
         if (empty) empty.remove();
-
         rec.interimEl = document.createElement('div');
         rec.interimEl.className = 'transcript-interim';
         rec.interimEl.innerHTML = `<span class="transcript-ts">${fmtTs(rec.elapsed * 1000)}</span><span class="transcript-text"></span>`;
@@ -469,7 +644,8 @@ function downloadTranscript() {
     if (!rec.transcript.length) return;
     const title = document.getElementById('recordTitle').value || '錄音逐字稿';
     const date  = new Date().toLocaleDateString('zh-TW');
-    let out = `# ${title}\n日期：${date}\n\n---\n\n## 逐字稿\n\n`;
+    const mode  = useWhisper() ? 'Whisper AI' : '瀏覽器語音辨識';
+    let out = `# ${title}\n日期：${date}　辨識模式：${mode}\n\n---\n\n## 逐字稿\n\n`;
     out += rec.transcript.map(t => `[${t.ts}] ${t.text}`).join('\n\n');
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([out], { type: 'text/markdown;charset=utf-8' }));
@@ -489,8 +665,8 @@ async function saveSession() {
 }
 
 async function loadSessions() {
-    const list = document.getElementById('sessionsList');
     const sessions = await dbGetAll();
+    const list = document.getElementById('sessionsList');
     if (!sessions.length) {
         list.innerHTML = `<div class="empty-state" style="min-height:60px;"><span style="font-size:12px;color:var(--text-light);">尚無記錄</span></div>`;
         return;
@@ -513,10 +689,8 @@ async function loadSession(id) {
     rec.wordCount  = s.wordCount || 0;
     rec.sentCount  = s.transcript.length;
     rec.elapsed    = s.duration || 0;
-
     document.getElementById('timer').textContent = fmtTs(rec.elapsed * 1000);
     document.getElementById('recordTitle').value = s.title;
-
     const box = document.getElementById('transcriptBox');
     box.innerHTML = '';
     s.transcript.forEach(t => {
@@ -525,7 +699,6 @@ async function loadSession(id) {
         el.innerHTML = `<span class="transcript-ts">${t.ts}</span><span class="transcript-text">${esc(t.text)}</span>`;
         box.appendChild(el);
     });
-
     document.getElementById('dlBtn').disabled = false;
     updateStats();
     toast(`已載入：${s.title}`, 'info');
@@ -545,37 +718,28 @@ function setupVisualizer(stream) {
     rec.analyser = rec.audioCtx.createAnalyser();
     rec.analyser.fftSize = 256;
     src.connect(rec.analyser);
-
     const canvas = document.getElementById('waveCanvas');
     const ctx = canvas.getContext('2d');
     const dpr = window.devicePixelRatio || 1;
-    canvas.width  = canvas.offsetWidth * dpr;
+    canvas.width = canvas.offsetWidth * dpr;
     canvas.height = canvas.offsetHeight * dpr;
     ctx.scale(dpr, dpr);
     const W = canvas.offsetWidth, H = canvas.offsetHeight;
     const buf = new Uint8Array(rec.analyser.frequencyBinCount);
-
     (function frame() {
         rec.rafId = requestAnimationFrame(frame);
         rec.analyser.getByteTimeDomainData(buf);
-        ctx.fillStyle = '#f1f5f9';
-        ctx.fillRect(0, 0, W, H);
-        ctx.strokeStyle = '#6366f1';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
+        ctx.fillStyle = '#f1f5f9'; ctx.fillRect(0, 0, W, H);
+        ctx.strokeStyle = '#6366f1'; ctx.lineWidth = 2; ctx.beginPath();
         const sw = W / buf.length;
-        buf.forEach((v, i) => {
-            const x = i * sw, y = (v / 128) * H / 2;
-            i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-        });
-        ctx.lineTo(W, H / 2);
-        ctx.stroke();
+        buf.forEach((v, i) => { const x = i*sw, y=(v/128)*H/2; i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+        ctx.lineTo(W, H/2); ctx.stroke();
     })();
 }
 
 // ── UI helpers ────────────────────────────────────
 function updateUI() {
-    const btn     = document.getElementById('recordBtn');
+    const btn = document.getElementById('recordBtn');
     const pauseBtn = document.getElementById('pauseBtn');
     const stopBtn  = document.getElementById('stopBtn');
     if (rec.active) {
@@ -589,46 +753,41 @@ function updateUI() {
         setStatus('', '準備就緒');
     }
 }
-
 function setStatus(type, text) {
     document.getElementById('statusDot').className = 'status-dot' + (type ? ' ' + type : '');
     document.getElementById('statusText').textContent = text;
 }
-
 function tickTimer() {
     rec.elapsed = Math.floor((Date.now() - rec.startTime) / 1000);
     document.getElementById('timer').textContent = fmtTs(rec.elapsed * 1000);
 }
-
 function updateStats() {
     document.getElementById('statSents').textContent = rec.sentCount;
     document.getElementById('statWords').textContent  = rec.wordCount;
 }
-
+function setChunkInfo(t) { document.getElementById('chunkInfo').textContent = t; }
 function fmtTs(ms) {
-    const s = Math.floor(ms / 1000);
-    const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), ss = s % 60;
+    const s = Math.floor(ms/1000), h = Math.floor(s/3600), m = Math.floor((s%3600)/60), ss = s%60;
     return h > 0 ? `${pad(h)}:${pad(m)}:${pad(ss)}` : `${pad(m)}:${pad(ss)}`;
 }
 function pad(n) { return String(n).padStart(2, '0'); }
 function esc(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
 function toast(msg, type = 'info') {
     const el = document.createElement('div');
-    el.className = `toast toast-${type}`;
-    el.textContent = msg;
+    el.className = `toast toast-${type}`; el.textContent = msg;
     document.getElementById('toastContainer').appendChild(el);
     setTimeout(() => el.remove(), 3500);
 }
 
 // ── Init ──────────────────────────────────────────
 (async function init() {
+    loadCfg();
+    updateModeBadge();
     await initDB();
     await loadSessions();
-    // Check browser support upfront
-    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
-        setTimeout(() => toast('請使用 Chrome 或 Edge 瀏覽器以啟用語音辨識', 'error'), 600);
-    }
+    document.getElementById('settingsModal').addEventListener('click', e => {
+        if (e.target === document.getElementById('settingsModal')) closeSettings();
+    });
 })();
 </script>
 </body>
